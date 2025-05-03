@@ -1,3 +1,6 @@
+[![pub package](https://img.shields.io/pub/v/punycoder.svg)](https://pub.dev/packages/iri)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Open in Firebase Studio](https://cdn.firebasestudio.dev/btn/open_light_20.svg)](https://studio.firebase.google.com/import?url=https%3A%2F%2Fgithub.com%2Fdropbear-software%iri)
 # IRI - Internationalized Resource Identifiers
 A Dart library for parsing, validating, manipulating, and converting
 Internationalized Resource Identifiers (IRIs) based on [RFC 3987](https://www.rfc-editor.org/rfc/rfc3987).
