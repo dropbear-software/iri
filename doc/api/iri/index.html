@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="iri library API docs, for the Dart programming language.">
+  <title>iri library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">iri</a></li>
+    <li class="self-crumb">iri.dart</li>
+  </ol>
+  <div class="self-name">iri</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="iri&#47;iri-library-sidebar.html">
+  
+    <div>
+      
+
+      <h1>
+        <span class="kind-library">iri</span>
+        library 
+ 
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <p>Provides support for Internationalized Resource Identifiers (IRIs)
+based on RFC 3987.</p>
+<p>This library defines the <a href="../iri/IRI-class.html">IRI</a> class, which allows parsing, validation,
+manipulation, and conversion of IRIs. IRIs extend the syntax of Uniform
+Resource Identifiers (URIs) to support a wider range of characters from the
+Universal Character Set (Unicode/ISO 10646)<code>cite: 7, 99</code>.</p>
+<p>Use the <a href="../iri/IRI-class.html">IRI</a> class to work with resource identifiers that may contain
+non-ASCII characters, commonly found in international contexts. It handles
+conversions to and from standard URIs, including Punycode encoding for
+internationalized domain names (IDNs) and percent-encoding for other
+non-ASCII characters.</p>
+<h2 id="usage-example">Usage Example</h2>
+<pre class="language-dart"><code class="language-dart">import 'package:iri/iri.dart';
+
+void main() {
+ // Create an IRI from a string containing non-ASCII characters.
+ final iri = IRI(
+   'https://例子.com/pȧth?q=1',
+ ); // 例子 means "example"
+
+ // Print the original IRI string.
+ print('Original IRI: ${iri.toString()}');
+ // Output: Original IRI: https://例子.com/pȧth?q=1
+
+ // Convert the IRI to its standard URI representation.
+ // The host is Punycode-encoded, and path characters are percent-encoded.
+ final uri = iri.toUri();
+ print('Converted URI: ${uri.toString()}');
+ // Output: Converted URI: http://xn--fsqu00a.com/p%C8%A7th?q=1
+
+ // Access components of the IRI (decoded).
+ print('Scheme: ${iri.scheme}'); // Output: Scheme: https
+ print('Host: ${iri.host}'); // Output: Host: 例子.com
+ print('Path: ${iri.path}'); // Output: Path: /pȧth
+ print('Query: ${iri.query}'); // Output: Query: q=1
+}
+</code></pre>
+<p>See the <a href="../iri/IRI-class.html">IRI</a> class documentation for more details on available methods
+and properties.</p>
+</section>
+
+
+    <section class="summary offset-anchor" id="classes">
+      <h2>Classes</h2>
+      <dl>
+          <dt id="IRI">
+  <span class="name "><a href="../iri/IRI-class.html">IRI</a></span> 
+
+</dt>
+<dd>
+  Represents an Internationalized Resource Identifier (IRI) according to RFC 3987.
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+
+
+
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">iri</a></li>
+    <li class="self-crumb">iri.dart</li>
+</ol>
+
+    <h5><span class="package-name">iri</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="../iri">iri</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <h5>iri library</h5>
+  </div><!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    iri
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
