@@ -15,6 +15,7 @@ class IRI {
 
   static final PunycodeCodec _punycodeCodec = PunycodeCodec();
 
+  /// Create a new Internationalized Resource Identifier from a String
   IRI(String originalValue)
     : _encodedUri = _convertToUri(originalValue),
       _codepoints = originalValue.runes;
@@ -837,11 +838,9 @@ class IRI {
                 '%${bytes.first.toRadixString(16).toUpperCase().padLeft(2, '0')}',
               );
               bytes.clear();
-              // TODO: Potentially revisit handling of invalid sequences.
-              // Maybe try processing remaining bytes in the buffer?
             }
           }
-        } catch (e) {
+        } on Exception catch (_) {
           // Error parsing hex or other issue - append original group
           output.write(group.toUpperCase());
           bytes.clear(); // Clear buffer on error
@@ -876,9 +875,10 @@ class IRI {
   }
 }
 
+// Intentional static helper class
 // ignore: avoid_classes_with_only_static_members
 /// Regular expressions for IRI components
-/// The following rules are different from those in [RFC3986]:
+/// The following rules are different from those in 'RFC3986':
 ///
 /// ```abnf
 /// IRI            = scheme ":" ihier-part [ "?" iquery ]
@@ -944,9 +944,9 @@ class IRI {
 ///```
 ///
 /// Some productions are ambiguous.  The "first-match-wins" (a.k.a.
-/// "greedy") algorithm applies.  For details, see [RFC3986].
+/// "greedy") algorithm applies.  For details, see 'RFC3986'.
 ///
-/// The following rules are the same as those in [RFC3986]:
+/// The following rules are the same as those in 'RFC3986':
 /// ```abnf
 /// scheme         = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 ///
@@ -1239,7 +1239,7 @@ class _RuneIterator implements Iterator<int> {
       // If successful, advance the offset
       _offset += expectedLength;
       return true;
-    } catch (e) {
+    } on Exception catch (_) {
       // Decoding failed (invalid sequence, overlong, etc.)
       _currentRune = -1;
       // Optional: Advance offset by 1? Or treat as failure.
