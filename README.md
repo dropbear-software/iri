@@ -37,7 +37,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  iri: ^0.1.0 # Replace with the latest version
+  iri: ^0.1.0
 ```
 
 Then, import the library in your Dart code:
