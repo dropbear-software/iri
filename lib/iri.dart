@@ -24,13 +24,13 @@
 ///  ); // 例子 means "example"
 ///
 ///  // Print the original IRI string.
-///  print('Original IRI: ${iri.toString()}');
+///  print('Original IRI: $iri');
 ///  // Output: Original IRI: https://例子.com/pȧth?q=1
 ///
 ///  // Convert the IRI to its standard URI representation.
 ///  // The host is Punycode-encoded, and path characters are percent-encoded.
 ///  final uri = iri.toUri();
-///  print('Converted URI: ${uri.toString()}');
+///  print('Converted URI: $uri');
 ///  // Output: Converted URI: http://xn--fsqu00a.com/p%C8%A7th?q=1
 ///
 ///  // Access components of the IRI (decoded).

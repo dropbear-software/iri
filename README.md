@@ -1,4 +1,4 @@
-[![pub package](https://img.shields.io/pub/v/punycoder.svg)](https://pub.dev/packages/iri)
+[![pub package](https://img.shields.io/pub/v/iri.svg)](https://pub.dev/packages/iri)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Open in Firebase Studio](https://cdn.firebasestudio.dev/btn/open_light_20.svg)](https://studio.firebase.google.com/import?url=https%3A%2F%2Fgithub.com%2Fdropbear-software%iri)
 # IRI - Internationalized Resource Identifiers
@@ -37,7 +37,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  iri: ^0.1.0 # Replace with the latest version
+  iri: ^0.1.0
 ```
 
 Then, import the library in your Dart code:
@@ -59,14 +59,14 @@ void main() {
   final iri = IRI('https://例子.com/pȧth?q=1');
 
   // 2. Print the original IRI string representation.
-  print('Original IRI: ${iri.toString()}');
+  print('Original IRI: $iri');
   // Output: Original IRI: https://例子.com/pȧth?q=1
 
   // 3. Convert the IRI to its standard URI representation.
   //    - The host (例子.com) is converted to Punycode (xn--fsqu00a.com).
   //    - The non-ASCII path character 'ȧ' (UTF-8 bytes C8 A7) is percent-encoded (%C8%A7).
   final uri = iri.toUri();
-  print('Converted URI: ${uri.toString()}');
+  print('Converted URI: $uri');
   // Output: Converted URI: https://xn--fsqu00a.com/p%C8%A7th?q=1
 
   // 4. Access components (values are decoded for IRI representation).
