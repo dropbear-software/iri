@@ -59,14 +59,14 @@ void main() {
   final iri = IRI('https://例子.com/pȧth?q=1');
 
   // 2. Print the original IRI string representation.
-  print('Original IRI: ${iri.toString()}');
+  print('Original IRI: $iri');
   // Output: Original IRI: https://例子.com/pȧth?q=1
 
   // 3. Convert the IRI to its standard URI representation.
   //    - The host (例子.com) is converted to Punycode (xn--fsqu00a.com).
   //    - The non-ASCII path character 'ȧ' (UTF-8 bytes C8 A7) is percent-encoded (%C8%A7).
   final uri = iri.toUri();
-  print('Converted URI: ${uri.toString()}');
+  print('Converted URI: $uri');
   // Output: Converted URI: https://xn--fsqu00a.com/p%C8%A7th?q=1
 
   // 4. Access components (values are decoded for IRI representation).
