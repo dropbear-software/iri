@@ -1,4 +1,3 @@
-// test/iri_test.dart
 import 'package:iri/iri.dart';
 import 'package:test/test.dart';
 
