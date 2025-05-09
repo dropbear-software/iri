@@ -1,6 +1,6 @@
 name: iri
 description: A Dart implementation of RFC3987 - Internationalized Resource Identifiers (IRIs)
-version: 0.1.0
+version: 0.1.1
 repository: https://github.com/dropbear-software/iri
 issue_tracker: https://github.com/dropbear-software/iri/issues
 topics:
