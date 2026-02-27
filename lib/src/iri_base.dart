@@ -16,6 +16,8 @@ import 'package:unorm_dart/unorm_dart.dart' as unorm;
 class Iri {
   final Uri _uri;
 
+  late final Uri _convertedUri = _computeUri();
+
   /// Creates a new IRI from its components.
   ///
   /// This mirrors the [Uri] constructor. All string components are
@@ -203,7 +205,9 @@ class Iri {
   ///
   /// Any non-ASCII characters in the hostname are converted to Punycode
   /// according to RFC 3492. Other components are percent-encoded using UTF-8.
-  Uri toUri() {
+  Uri toUri() => _convertedUri;
+
+  Uri _computeUri() {
     if (scheme == 'mailto') {
       final decodedPath = Uri.decodeComponent(_uri.path);
       try {
