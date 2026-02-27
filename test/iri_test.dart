@@ -75,26 +75,53 @@ void main() {
   });
 
   group('Iri constructors', () {
-    test('default constructor with components', () {
+    test('default constructor with multiple queryParameters including Iterable<String> and international characters', () {
       final iri = Iri(
         scheme: 'https',
-        host: 'résumé.example.org',
-        path: '/path',
+        host: 'example.org',
+        path: '/search',
+        queryParameters: {
+          'q': ['réunion', 'münchen'],
+          'lang': 'fr',
+        },
       );
-      expect(iri.toString(), 'https://résumé.example.org/path');
-      expect(iri.toUri().host, 'xn--rsum-bpad.example.org');
+      expect(iri.toString(), 'https://example.org/search?q=réunion&q=münchen&lang=fr');
+      expect(iri.queryParametersAll, {
+        'q': ['réunion', 'münchen'],
+        'lang': ['fr'],
+      });
     });
 
-    test('Iri.http', () {
-      final iri = Iri.http('münchen.test', '/path');
-      expect(iri.toString(), 'http://münchen.test/path');
-      expect(iri.toUri().host, 'xn--mnchen-3ya.test');
+    test('Iri.http with multiple queryParameters including Iterable<String> and international characters', () {
+      final iri = Iri.http(
+        'example.org',
+        '/search',
+        {
+          'q': ['résumé', 'straße'],
+          'count': '10',
+        },
+      );
+      expect(iri.toString(), 'http://example.org/search?q=résumé&q=straße&count=10');
+      expect(iri.queryParametersAll, {
+        'q': ['résumé', 'straße'],
+        'count': ['10'],
+      });
     });
 
-    test('Iri.https', () {
-      final iri = Iri.https('münchen.test', '/path');
-      expect(iri.toString(), 'https://münchen.test/path');
-      expect(iri.toUri().host, 'xn--mnchen-3ya.test');
+    test('Iri.https with multiple queryParameters including Iterable<String> and international characters', () {
+      final iri = Iri.https(
+        'example.org',
+        '/search',
+        {
+          'param1': ['你好', '世界'],
+          'param2': 'test',
+        },
+      );
+      expect(iri.toString(), 'https://example.org/search?param1=你好&param1=世界&param2=test');
+      expect(iri.queryParametersAll, {
+        'param1': ['你好', '世界'],
+        'param2': ['test'],
+      });
     });
 
     test('Iri.file', () {
@@ -270,8 +297,26 @@ void main() {
           },
         );
         expect(replaced.toString(), 'http://example.org/?q=résumé&q=münchen');
+        expect(replaced.queryParametersAll, {
+          'q': ['résumé', 'münchen'],
+        });
       },
     );
+
+    test('replace with multiple international query parameters including Iterable<String>', () {
+      final base = Iri.parse('https://www.example.com/path');
+      final replaced = base.replace(queryParameters: {
+        '搜索': ['你好', '世界'], // "search": ["hello", "world"]
+        '分类': '书籍', // "category": "books"
+        'État': ['neuf', 'usagé'], // "State": ["new", "used"]
+      });
+      expect(replaced.toString(), 'https://www.example.com/path?搜索=你好&搜索=世界&分类=书籍&État=neuf&État=usagé');
+      expect(replaced.queryParametersAll, {
+        '搜索': ['你好', '世界'],
+        '分类': ['书籍'],
+        'État': ['neuf', 'usagé'],
+      });
+    });
   });
 
   group('RFC Specicifc complaince', () {

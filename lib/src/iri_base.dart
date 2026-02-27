@@ -38,17 +38,7 @@ class Iri {
          path: path != null ? unorm.nfkc(path) : null,
          pathSegments: pathSegments?.map(unorm.nfkc),
          query: query != null ? unorm.nfkc(query) : null,
-         queryParameters: queryParameters?.map((k, v) {
-           final Object? normalizedValue;
-           if (v is String) {
-             normalizedValue = unorm.nfkc(v);
-           } else if (v is Iterable<String>) {
-             normalizedValue = v.map(unorm.nfkc);
-           } else {
-             normalizedValue = v;
-           }
-           return MapEntry(unorm.nfkc(k), normalizedValue);
-         }),
+         queryParameters: _normalizeQueryParameters(queryParameters),
          fragment: fragment != null ? unorm.nfkc(fragment) : null,
        );
 
@@ -60,17 +50,7 @@ class Iri {
   ]) : _uri = Uri.http(
          unorm.nfkc(host),
          unorm.nfkc(path),
-         queryParameters?.map((k, v) {
-           final Object? normalizedValue;
-           if (v is String) {
-             normalizedValue = unorm.nfkc(v);
-           } else if (v is Iterable<String>) {
-             normalizedValue = v.map(unorm.nfkc);
-           } else {
-             normalizedValue = v;
-           }
-           return MapEntry(unorm.nfkc(k), normalizedValue);
-         }),
+         _normalizeQueryParameters(queryParameters),
        );
 
   /// Creates a new https IRI from its components.
@@ -81,22 +61,12 @@ class Iri {
   ]) : _uri = Uri.https(
          unorm.nfkc(host),
          unorm.nfkc(path),
-         queryParameters?.map((k, v) {
-           final Object? normalizedValue;
-           if (v is String) {
-             normalizedValue = unorm.nfkc(v);
-           } else if (v is Iterable<String>) {
-             normalizedValue = v.map(unorm.nfkc);
-           } else {
-             normalizedValue = v;
-           }
-           return MapEntry(unorm.nfkc(k), normalizedValue);
-         }),
+         _normalizeQueryParameters(queryParameters),
        );
 
   /// Creates a new file IRI from its components.
   Iri.file(String path, {bool? windows})
-    : _uri = Uri.file(unorm.nfkc(path), windows: windows);
+      : _uri = Uri.file(unorm.nfkc(path), windows: windows);
 
   /// Creates a new IRI from an existing [Uri].
   Iri.fromUri(this._uri);
@@ -119,6 +89,23 @@ class Iri {
     final normalized = unorm.nfkc(input);
     final uri = Uri.tryParse(normalized);
     return uri == null ? null : Iri._(uri);
+  }
+
+  static Map<String, dynamic>? _normalizeQueryParameters(
+    Map<String, dynamic>? params,
+  ) {
+    if (params == null) return null;
+    return params.map((k, v) {
+      final Object? normalizedValue;
+      if (v is String) {
+        normalizedValue = unorm.nfkc(v);
+      } else if (v is Iterable<String>) {
+        normalizedValue = v.map(unorm.nfkc);
+      } else {
+        normalizedValue = v;
+      }
+      return MapEntry(unorm.nfkc(k), normalizedValue);
+    });
   }
 
   /// The scheme of this IRI.
@@ -161,6 +148,11 @@ class Iri {
   /// The URI query parameters as a map.
   Map<String, String> get queryParameters => _uri.queryParameters;
 
+  /// The URI query parameters as a map, allowing for multiple values per key.
+  ///
+  /// The returned map's values are lists of strings.
+  Map<String, List<String>> get queryParametersAll => _uri.queryParametersAll;
+
   /// The URI path segments as an iterable.
   List<String> get pathSegments => _uri.pathSegments;
 
@@ -201,17 +193,7 @@ class Iri {
         path: path != null ? unorm.nfkc(path) : null,
         pathSegments: pathSegments?.map(unorm.nfkc),
         query: query != null ? unorm.nfkc(query) : null,
-        queryParameters: queryParameters?.map((k, v) {
-          final Object? normalizedValue;
-          if (v is String) {
-            normalizedValue = unorm.nfkc(v);
-          } else if (v is Iterable<String>) {
-            normalizedValue = v.map(unorm.nfkc);
-          } else {
-            normalizedValue = v;
-          }
-          return MapEntry(unorm.nfkc(k), normalizedValue);
-        }),
+        queryParameters: _normalizeQueryParameters(queryParameters),
         fragment: fragment != null ? unorm.nfkc(fragment) : null,
       ),
     );
