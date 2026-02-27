@@ -15,7 +15,7 @@ void main() {
   // The host is Punycode-encoded, and path characters are percent-encoded.
   final uri = iri.toUri();
   print('Converted URI: $uri');
-  // Output: Converted URI: http://xn--fsqu00a.com/p%C8%A7th?q=1
+  // Output: Converted URI: https://xn--fsqu00a.com/p%C8%A7th?q=1
 
   // Access components of the IRI (decoded).
   print('Scheme: ${iri.scheme}'); // Output: Scheme: https
