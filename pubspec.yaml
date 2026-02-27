@@ -1,6 +1,6 @@
 name: iri
 description: A Dart implementation of RFC3987 - Internationalized Resource Identifiers (IRIs)
-version: 0.1.1
+version: 0.2.0
 repository: https://github.com/dropbear-software/iri
 issue_tracker: https://github.com/dropbear-software/iri/issues
 topics:
@@ -14,9 +14,9 @@ environment:
   sdk: ^3.7.2
 
 dependencies:
-  collection: ^1.19.1
   meta: ^1.16.0
   punycoder: ^0.3.0
+  unorm_dart: ^0.3.2
 
 dev_dependencies:
   lints: ^6.1.0

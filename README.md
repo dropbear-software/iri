@@ -1,85 +1,68 @@
-[![pub package](https://img.shields.io/pub/v/iri.svg)](https://pub.dev/packages/iri)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Open in Firebase Studio](https://cdn.firebasestudio.dev/btn/open_light_20.svg)](https://studio.firebase.google.com/import?url=https%3A%2F%2Fgithub.com%2Fdropbear-software%iri)
-# IRI - Internationalized Resource Identifiers
-A Dart library for parsing, validating, manipulating, and converting
-Internationalized Resource Identifiers (IRIs) based on [RFC 3987](https://www.rfc-editor.org/rfc/rfc3987).
+# IRI (Internationalized Resource Identifiers)
 
-## Overview
+A pure Dart implementation of Internationalized Resource Identifiers (IRI) as defined in [RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987).
 
-Internationalized Resource Identifiers (IRIs) extend the syntax of Uniform
-Resource Identifiers (URIs) to support a wider range of characters from the
-Universal Character Set (Unicode/ISO 10646). This is essential for representing
-resource identifiers in languages that use characters outside the US-ASCII range.
-
-This package provides the `IRI` class to work with IRIs in Dart applications.
-It handles the necessary conversions between IRIs and standard URIs, including:
-
-* **Punycode encoding/decoding** for internationalized domain names (IDNs) within the host component.
-* **Percent encoding/decoding** for other non-ASCII characters in various IRI components, using UTF-8 as required by the standard.
+This package provides an `Iri` class that acts as a Unicode-aware wrapper around Dart's native `Uri` class. It handles the mapping between IRIs and URIs, including automatic Punycode conversion for hostnames and UTF-8 percent-encoding for other components.
 
 ## Features
 
-* **Parse IRI strings:** Create `IRI` objects from strings.
-* **Validate IRIs:** Check if strings conform to RFC 3987 syntax.
-* **Access Components:** Easily get decoded IRI components like `scheme`, `host`, `path`, `query`, `fragment`, `userInfo`, `port`.
-* **IRI-to-URI Conversion:** Convert an `IRI` object to a standard Dart `Uri` object, applying Punycode and percent-encoding according to RFC 3987 rules.
-* **URI-to-IRI Conversion:** Convert a standard `Uri` back into an `IRI`, decoding percent-encoded sequences where appropriate.
-* **Normalization:** Applies syntax-based normalization including:
-    * Case normalization (scheme, host).
-    * Percent-encoding normalization (uses uppercase hex, decodes unreserved characters where possible in IRI representation).
-    * Path segment normalization (removes `.` and `..` segments).
-* **Comparison:** Compare `IRI` objects based on their code point sequence (simple string comparison).
+- **Standard Compliant**: Implements the IRI-to-URI mapping and URI-to-IRI conversion rules from RFC 3987.
+- **Punycode Support**: Automatically converts non-ASCII hostnames to Punycode.
+- **Unicode-Aware**: Access components (path, query, fragment, etc.) in their original Unicode form.
+- **Normalization**: Automatically applies **NFKC** (Normalization Form KC) to all inputs as recommended by RFC 3987 to prevent comparison false-negatives.
+- **IDNA Separators**: Supports international domain separators (`。`, `．`, `｡`) during parsing and conversion.
+- **Mailto Support**: Special handling for `mailto:` IRIs, ensuring email domain parts are correctly Punycode-encoded.
+- **Familiar API**: Mirrors the Dart `Uri` class API, including `resolve`, `resolveIri`, and `replace`.
+- **Immutable**: The `Iri` class is immutable and supports equality checks.
 
-## Getting Started
+## RFC 3987 Compliance & Limitations
 
-Add the package to your `pubspec.yaml`:
+While this package aims for high compatibility with RFC 3987, there are known areas where the current implementation deviates from the strict specification:
+
+1.  **Robust URI-to-IRI Decoding (RFC 3987 Section 3.2)**: When converting from a `Uri` to an `Iri`, the package currently uses standard UTF-8 decoding. If a percent-encoded sequence is invalid UTF-8 (e.g., `%FC`), the implementation may throw a `FormatException` instead of preserving the percent-encoding as required by the RFC.
+2.  **Prohibited Characters (RFC 3987 Section 4.1)**: Certain Unicode characters (like bidirectional control characters `U+202E`) are prohibited from appearing directly in an IRI. Currently, these characters are decoded if present in a URI, whereas they should remain percent-encoded.
+3.  **Bidi Validation (RFC 3987 Section 4.2)**: The package does not currently perform structural validation of bidirectional IRIs (e.g., ensuring RTL components don't mix directions incorrectly).
+
+These areas **may** be a part of future updates. For most common use cases involving standard Unicode text in paths and hosts, the package provides a robust experience.
+
+## Getting started
+
+Add `iri` to your `pubspec.yaml` dependencies:
 
 ```yaml
 dependencies:
-  iri: ^0.1.0
-```
-
-Then, import the library in your Dart code:
-
-```dart
-import 'package:iri/iri.dart';
+  iri: ^0.2.0
 ```
 
 ## Usage
-Here's a basic example demonstrating how to create an `IRI` and convert it to a `Uri`:
+
+### Basic Parsing and Conversion
 
 ```dart
 import 'package:iri/iri.dart';
 
 void main() {
-  // 1. Create an IRI from a string containing non-ASCII characters.
-  //    例子 means "example" in Chinese.
-  //    The path contains 'ȧ' (U+0227 LATIN SMALL LETTER A WITH DOT ABOVE).
-  final iri = IRI('https://例子.com/pȧth?q=1');
+  // Parse an IRI with Unicode characters
+  final iri = Iri.parse('http://résumé.example.org/résumé');
 
-  // 2. Print the original IRI string representation.
-  print('Original IRI: $iri');
-  // Output: Original IRI: https://例子.com/pȧth?q=1
+  print('IRI host: ${iri.host}'); // résumé.example.org
+  print('IRI path: ${iri.path}'); // /résumé
 
-  // 3. Convert the IRI to its standard URI representation.
-  //    - The host (例子.com) is converted to Punycode (xn--fsqu00a.com).
-  //    - The non-ASCII path character 'ȧ' (UTF-8 bytes C8 A7) is percent-encoded (%C8%A7).
+  // Convert to a standard URI for network operations
   final uri = iri.toUri();
-  print('Converted URI: $uri');
-  // Output: Converted URI: https://xn--fsqu00a.com/p%C8%A7th?q=1
-
-  // 4. Access components (values are decoded for IRI representation).
-  print('Scheme: ${iri.scheme}');       // Output: Scheme: https
-  print('Host: ${iri.host}');           // Output: Host: 例子.com
-  print('Path: ${iri.path}');           // Output: Path: /pȧth
-  print('Query: ${iri.query}');         // Output: Query: q=1
-
-  // 5. Compare IRIs
-  final iri2 = IRI('https://例子.com/pȧth?q=1');
-  print('IRIs equal: ${iri == iri2}'); // Output: IRIs equal: true
-
-  final iri3 = IRI('https://example.com/');
-  print('IRIs equal: ${iri == iri3}'); // Output: IRIs equal: false
+  print('URI host: ${uri.host}'); // xn--rsum-bpad.example.org
+  print('URI string: $uri');      // http://xn--rsum-bpad.example.org/r%C3%A9sum%C3%A9
 }
+```
+
+### Creating IRIs from Components
+
+```dart
+final iri = Iri(
+  scheme: 'https',
+  host: 'münchen.test',
+  path: '/city',
+);
+
+print(iri.toUri()); // https://xn--mnchen-3ya.test/city
 ```

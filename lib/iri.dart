@@ -1,12 +1,13 @@
+/// @docImport 'src/iri_base.dart';
 /// Provides support for Internationalized Resource Identifiers (IRIs)
-/// based on RFC 3987.
+/// based on RFC 3987 (https://www.rfc-editor.org/rfc/rfc3987).
 ///
-/// This library defines the [IRI] class, which allows parsing, validation,
+/// This library defines the [Iri] class, which allows parsing, validation,
 /// manipulation, and conversion of IRIs. IRIs extend the syntax of Uniform
 /// Resource Identifiers (URIs) to support a wider range of characters from the
-/// Universal Character Set (Unicode/ISO 10646)[cite: 7, 99].
+/// Universal Character Set (Unicode/ISO 10646).
 ///
-/// Use the [IRI] class to work with resource identifiers that may contain
+/// Use the [Iri] class to work with resource identifiers that may contain
 /// non-ASCII characters, commonly found in international contexts. It handles
 /// conversions to and from standard URIs, including Punycode encoding for
 /// internationalized domain names (IDNs) and percent-encoding for other
@@ -19,7 +20,7 @@
 ///
 /// void main() {
 ///  // Create an IRI from a string containing non-ASCII characters.
-///  final iri = IRI(
+///  final iri = Iri.parse(
 ///    'https://例子.com/pȧth?q=1',
 ///  ); // 例子 means "example"
 ///
@@ -41,8 +42,8 @@
 /// }
 /// ```
 ///
-/// See the [IRI] class documentation for more details on available methods
+/// See the [Iri] class documentation for more details on available methods
 /// and properties.
 library;
 
-export 'src/internationalized_resource_identifier.dart';
+export 'src/iri_base.dart';

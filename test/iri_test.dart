@@ -2,496 +2,404 @@ import 'package:iri/iri.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('IRI to URI Conversion Tests', () {
-    // --- Basic ASCII URIs (Should pass through mostly unchanged) ---
-    test('Simple HTTP URI', () {
-      const inputIri = 'http://example.com/path?query#fragment';
-      const expectedUriString = 'http://example.com/path?query#fragment';
-      final iri = IRI(inputIri);
+  group('Iri Core and Punycode mapping', () {
+    test('toUri handles ASCII host', () {
+      final iri = Iri.parse('http://example.org/path');
       final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+      expect(uri.host, 'example.org');
+      expect(uri.toString(), 'http://example.org/path');
     });
 
-    test('HTTPS with default port', () {
-      const inputIri = 'https://example.com/path';
-      const expectedUriString =
-          'https://example.com/path'; // Note: Uri toString might omit default ports
-      final iri = IRI(inputIri);
+    test('toUri converts non-ASCII host to Punycode', () {
+      // résumé -> xn--rsum-bpad
+      final iri = Iri.parse('http://résumé.example.org');
       final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+      expect(uri.host, 'xn--rsum-bpad.example.org');
+      expect(uri.toString(), 'http://xn--rsum-bpad.example.org');
     });
 
-    test('HTTP with explicit default port 80', () {
-      const inputIri = 'http://example.com:80/path';
-      const expectedUriString =
-          'http://example.com/path'; // Uri toString omits default port
-      final iri = IRI(inputIri);
+    test('toUri converts multi-label non-ASCII host', () {
+      // münchen.test -> xn--mnchen-3ya.test
+      final iri = Iri.parse('http://münchen.test');
       final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+      expect(uri.host, 'xn--mnchen-3ya.test');
     });
 
-    test('URI with userinfo', () {
-      const inputIri = 'ftp://user:password@example.com/';
-      const expectedUriString = 'ftp://user:password@example.com/';
-      final iri = IRI(inputIri);
+    test('toUri handles international separators', () {
+      // mañana。com -> xn--maana-pta.com
+      final iri = Iri.parse('http://mañana\u3002com');
       final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+      expect(uri.host, 'xn--maana-pta.com');
     });
 
-    test('URI with empty path after authority', () {
-      const inputIri = 'http://example.com';
-      const expectedUriString =
-          'http://example.com/'; // Uri parsing/construction typically adds '/'
-      final iri = IRI(inputIri);
+    test('toUriString handles percent-encoding of path', () {
+      final iri = Iri.parse('http://example.org/résumé');
+      expect(iri.toUriString(), 'http://example.org/r%C3%A9sum%C3%A9');
+    });
+  });
+
+  group('Iri mailto: special handling', () {
+    test('toUri converts domain part of mailto: path', () {
+      // mailto:user@münchen.test -> mailto:user@xn--mnchen-3ya.test
+      final iri = Iri.parse('mailto:user@münchen.test');
       final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+      expect(uri.path, 'user@xn--mnchen-3ya.test');
+      expect(uri.toString(), 'mailto:user@xn--mnchen-3ya.test');
     });
 
-    // --- Host Handling (IDN, Punycode, IPs) ---
-    test('Simple IDN Host (Chinese)', () {
-      const inputIri = 'http://例子.com/'; // 例子 = example
-      const expectedUriString = 'http://xn--fsqu00a.com/'; // Punycode encoded
-      final iri = IRI(inputIri);
+    test('toUri handles international characters in local part', () {
+      // mailto:джумла@münchen.test
+      final iri = Iri.parse('mailto:джумла@münchen.test');
       final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
+      // local part should be percent-encoded, domain part Punycode
+      expect(uri.path, contains('xn--mnchen-3ya.test'));
+      expect(uri.toString(), contains('%D0%B4%D0%B6%D1%83%D0%BC%D0%BB%D0%B0'));
     });
 
-    test('Simple IDN Host (German)', () {
-      const inputIri = 'http://Exämple.org/path'; // Mixed case input host
-      const expectedUriString =
-          'http://xn--exmple-cua.org/path'; // Punycode of lowercased host
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri.toLowerCase()));
+    test('path getter returns Unicode for mailto: domains', () {
+      final uri = Uri.parse('mailto:user@xn--mnchen-3ya.test');
+      final iri = Iri.fromUri(uri);
+      expect(iri.path, 'user@münchen.test');
     });
 
-    test('IDN Host, no Punycode needed', () {
-      const inputIri = 'http://example.com/';
-      const expectedUriString = 'http://example.com/';
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+    test('path getter handles complex mailto: gracefully', () {
+      // multiple recipients or headers might not match emailToUnicode pattern
+      final iri = Iri.parse('mailto:a@b.com,c@d.com?subject=hi');
+      expect(iri.path, 'a@b.com,c@d.com');
+    });
+  });
+
+  group('Iri constructors', () {
+    test('default constructor with components', () {
+      final iri = Iri(
+        scheme: 'https',
+        host: 'résumé.example.org',
+        path: '/path',
+      );
+      expect(iri.toString(), 'https://résumé.example.org/path');
+      expect(iri.toUri().host, 'xn--rsum-bpad.example.org');
     });
 
-    test('schemes are normalized as lowercase', () {
-      const inputIri = 'HTTP://example.com/';
-      const expectedUriString = 'http://example.com/';
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+    test('Iri.http', () {
+      final iri = Iri.http('münchen.test', '/path');
+      expect(iri.toString(), 'http://münchen.test/path');
+      expect(iri.toUri().host, 'xn--mnchen-3ya.test');
     });
 
-    test('hosts are normalized as lowercase', () {
-      const inputIri = 'http://EXAMPLE.com/';
-      const expectedUriString = 'http://example.com/';
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+    test('Iri.https', () {
+      final iri = Iri.https('münchen.test', '/path');
+      expect(iri.toString(), 'https://münchen.test/path');
+      expect(iri.toUri().host, 'xn--mnchen-3ya.test');
     });
 
-    test('paths are not normalized as lowercase', () {
-      const inputIri = 'http://example.com/UPPERCASE';
-      const expectedUriString = 'http://example.com/UPPERCASE';
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+    test('Iri.file', () {
+      final iri = Iri.file('/path/to/résumé.txt');
+      expect(iri.scheme, 'file');
+      expect(iri.toString(), contains('résumé.txt'));
     });
 
-    // test('IDN Host with non-ASCII TLD', () {
-    //   const inputIri =
-    //       'http://example.xn--iñvalidtld/'; // Test case for potential future TLDs, Punycode should apply
-    //   const expectedUriString = 'http://example.xn--iinvalidtld-9na/';
-    //   final iri = IRI(inputIri);
-    //   final uri = iri.toUri();
-    //   expect(uri.toString(), equals(expectedUriString));
-    //   expect(iri.toString(), equals(inputIri));
-    // });
-
-    test('IPv4 Host', () {
-      const inputIri = 'http://192.168.0.1/path';
-      const expectedUriString = 'http://192.168.0.1/path'; // No Punycode
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+    test('Iri.tryParse', () {
+      expect(Iri.tryParse('http://example.org'), isNotNull);
+      expect(Iri.tryParse('::'), isNull);
     });
 
-    test('IPv6 Host (Simple)', () {
-      const inputIri = 'http://[::1]/path';
-      const expectedUriString = 'http://[::1]/path'; // No Punycode
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+    test('Iri.fromUri', () {
+      final uri = Uri.parse(
+        'http://xn--rsum-bpad.example.org/r%C3%A9sum%C3%A9',
+      );
+      final iri = Iri.fromUri(uri);
+      expect(iri.host, 'résumé.example.org');
+      expect(iri.path, '/résumé');
+      expect(iri.toString(), 'http://résumé.example.org/résumé');
+    });
+  });
+
+  group('Iri component accessors', () {
+    test('Unicode-aware getters', () {
+      final iri = Iri.parse('http://user:pass@résumé.test/münchen?q=résumé#f');
+      expect(iri.host, 'résumé.test');
+      expect(iri.path, '/münchen');
+      expect(iri.query, 'q=résumé');
+      expect(iri.fragment, 'f');
+      expect(iri.userInfo, 'user:pass');
     });
 
-    test('IPv6 Host (Full) - Checks preservation of uncompressed form', () {
-      const inputIri = 'http://[2001:0db8:85a3:0000:0000:8a2e:0370:7334]/';
-      // Dart's Uri class preserves the input IPv6 form (does not apply RFC 5952)
-      const expectedUriString =
-          'http://[2001:0db8:85a3:0000:0000:8a2e:0370:7334]/';
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+    test('pathSegments and queryParameters', () {
+      final iri = Iri.parse('http://example.org/a/b?q=1&v=2');
+      expect(iri.pathSegments, ['a', 'b']);
+      expect(iri.queryParameters, {'q': '1', 'v': '2'});
+    });
+  });
+
+  group('Iri equality', () {
+    test('operator == and hashCode handles basic equality', () {
+      final iri1 = Iri.parse('http://résumé.test');
+      final iri2 = Iri.parse('http://résumé.test');
+      final iri3 = Iri.parse('http://other.test');
+
+      expect(iri1 == iri2, isTrue);
+      expect(iri1 == iri3, isFalse);
+      expect(iri1.hashCode == iri2.hashCode, isTrue);
     });
 
-    test('IPv6 Host (Normalization Check - Input Uppercase)', () {
-      const inputIri = 'http://[2001:DB8::1]/path';
-      const expectedUriString =
-          'http://[2001:db8::1]/path'; // Expect lowercase hex output
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+    test('operator == handles Unicode vs Punycode host', () {
+      final iriUnicode = Iri.parse('http://résumé.example.org');
+      final iriPunycode = Iri.parse('http://xn--rsum-bpad.example.org');
+
+      expect(iriUnicode == iriPunycode, isTrue);
+      expect(iriUnicode.hashCode == iriPunycode.hashCode, isTrue);
     });
 
-    // TODO: https://github.com/dart-lang/sdk/issues/60483
-    // test('IPvFuture Host (Normalization Check - Input Uppercase V)', () {
-    //   const inputIri = 'http://[vFe.foo_bar]/';
-    //   const expectedUriString =
-    //       'http://[vfe.foo_bar]/'; // Expect lowercase 'v' and content
-    //   final iri = IRI(inputIri);
-    //   final uri = iri.toUri();
-    //   expect(uri.toString(), equals(expectedUriString));
-    // });
+    test('operator == handles NFC normalization', () {
+      // 'e' + combining acute accent (U+0301) vs 'é' (U+00E9)
+      final iri1 = Iri.parse('http://example.org/re\u0301sume\u0301');
+      final iri2 = Iri.parse('http://example.org/résumé');
 
-    // --- Path Component (Unicode, Percent Encoding) ---
-    test('Path with Latin Extended (Umlaut)', () {
-      const inputIri = 'http://example.com/pȧth'; // a with dot above
-      const expectedUriString = 'http://example.com/p%C8%A7th'; // UTF-8: C8 A7
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
+      expect(iri1 == iri2, isTrue);
+      expect(iri1.hashCode == iri2.hashCode, isTrue);
     });
 
-    // Add test for the other a-dot (U+0121) using explicit codepoint
-    test('Path with Latin Extended (a-dot U+0121)', () {
-      const inputIri = 'http://example.com/p\u{0121}th'; // Explicitly U+0121
-      // UTF-8 for U+0121 is C4 A1
-      const expectedUriString = 'http://example.com/p%C4%A1th';
-      const expectedIriString = 'http://example.com/pġth';
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedIriString));
+    test('operator == handles case normalization of scheme and host', () {
+      final iri1 = Iri.parse('HTTP://EXAMPLE.ORG/');
+      final iri2 = Iri.parse('http://example.org/');
+
+      expect(iri1 == iri2, isTrue);
+    });
+  });
+
+  group('Normalization and Unicode Representation', () {
+    test('NFC normalization during parse', () {
+      // 'e' + combining acute accent (U+0301)
+      const input = 'http://example.org/re\u0301sume\u0301';
+      final iri = Iri.parse(input);
+      // Normalized to 'é' (U+00E9)
+      expect(iri.path, '/résumé');
+      expect(iri.toString(), 'http://example.org/résumé');
     });
 
-    test('Path with Greek', () {
-      const inputIri = 'http://example.com/αβγ'; // alpha beta gamma
-      const expectedUriString =
-          'http://example.com/%CE%B1%CE%B2%CE%B3'; // UTF-8: CE B1, CE B2, CE B3
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
+    test('toString returns Unicode representation', () {
+      final iri = Iri.parse('http://résumé.example.org/münchen?q=résumé#f');
+      expect(iri.toString(), 'http://résumé.example.org/münchen?q=résumé#f');
     });
 
-    test('Path with Japanese', () {
-      const inputIri = 'http://example.com/path/資料'; // 資料 = material/data
-      const expectedUriString =
-          'http://example.com/path/%E8%B3%87%E6%96%99'; // UTF-8: E8 B3 87 E6 96 99
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
+    test('toString handles port and userInfo', () {
+      final iri = Iri.parse('http://user:pass@example.org:8080/path');
+      expect(iri.toString(), 'http://user:pass@example.org:8080/path');
     });
 
-    test('Path with existing valid percent encoding', () {
-      const inputIri = 'http://example.com/path%20with%20spaces'; // %20 = space
-      const expectedUriString =
-          'http://example.com/path%20with%20spaces'; // Should be preserved
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+    test('NFKC normalization (Compatibility Decomposition)', () {
+      // Full-width Latin 'A' (U+FF21) should be normalized to 'A' (U+0041)
+      final iri = Iri.parse('http://\uFF21.com/');
+      expect(
+        iri.host,
+        'a.com',
+      ); // Note: host getter might also be lowercase if punycode was involved
+      expect(iri.toString(), 'http://a.com/');
+    });
+  });
+
+  group('Iri Resolution', () {
+    test('resolve(String) handles relative path', () {
+      final base = Iri.parse('http://résumé.example.org/a/b');
+      final resolved = base.resolve('c/d');
+      expect(resolved.toString(), 'http://résumé.example.org/a/c/d');
     });
 
-    test('Path with existing mixed-case percent encoding', () {
-      const inputIri = 'http://example.com/path%e2%82%ac'; // %e2%82%ac = €
-      const expectedUriString = 'http://example.com/path%E2%82%AC';
-      const expectedIriString = 'http://example.com/path€';
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedIriString));
+    test('resolve(String) handles absolute path', () {
+      final base = Iri.parse('http://résumé.example.org/a/b');
+      final resolved = base.resolve('/c/d');
+      expect(resolved.toString(), 'http://résumé.example.org/c/d');
     });
 
-    // --- Query Component ---
-    test('Query with Unicode', () {
-      const inputIri = 'http://example.com/?k€y=vÄlue'; // Euro, A-umlaut
-      const expectedUriString =
-          'http://example.com/?k%E2%82%ACy=v%C3%84lue'; // UTF-8: E2 82 AC, C3 84
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
+    test('resolve(String) handles full IRI', () {
+      final base = Iri.parse('http://résumé.example.org/a/b');
+      final resolved = base.resolve('https://münchen.test/');
+      expect(resolved.toString(), 'https://münchen.test/');
     });
 
-    test('Query with reserved chars & / ?', () {
-      const inputIri = 'http://example.com/?a=b&c=d/e?f=g';
-      const expectedUriString =
-          'http://example.com/?a=b&c=d/e?f=g'; // / and ? are allowed in query
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
+    test('resolve(String) normalizes input to NFKC', () {
+      final base = Iri.parse('http://example.org/');
+      // Full-width 'a' (U+FF41)
+      final resolved = base.resolve('\uFF41');
+      expect(resolved.path, '/a');
     });
 
-    test(
-      'Query with chars allowed in path but not query unencoded (test needed?)',
-      () {
-        // Generally pchar / "/" / "?" are allowed, so this is less common
-        const inputIri = 'http://example.com/?email=a@b'; // @ allowed via pchar
-        const expectedUriString = 'http://example.com/?email=a@b';
-        final iri = IRI(inputIri);
-        final uri = iri.toUri();
-        expect(uri.toString(), equals(expectedUriString));
-        expect(iri.toString(), equals(inputIri));
-      },
-    );
+    test('resolveIri(Iri) works', () {
+      final base = Iri.parse('http://résumé.example.org/a/b');
+      final relative = Iri.parse('c/d');
+      final resolved = base.resolveIri(relative);
+      expect(resolved.toString(), 'http://résumé.example.org/a/c/d');
+    });
+  });
 
-    // --- Fragment Component ---
-    test('Fragment with Unicode', () {
-      const inputIri = 'http://example.com/#frag™ent'; // Trademark symbol
-      const expectedUriString =
-          'http://example.com/#frag%E2%84%A2ent'; // UTF-8: E2 84 A2
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
+  group('Iri.replace', () {
+    test('replace component works', () {
+      final base = Iri.parse('http://example.org/path');
+      final replaced = base.replace(host: 'résumé.test', fragment: 'f');
+      expect(replaced.toString(), 'http://résumé.test/path#f');
     });
 
-    test('Fragment with / and ?', () {
-      const inputIri = 'http://example.com/#a/b?c';
-      const expectedUriString =
-          'http://example.com/#a/b?c'; // / and ? allowed in fragment
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
+    test('replace normalizes inputs to NFKC', () {
+      final base = Iri.parse('http://example.org/');
+      // Full-width 'a' (U+FF41)
+      final replaced = base.replace(path: '/\uFF41');
+      expect(replaced.path, '/a');
     });
 
-    // --- UserInfo Component ---
-    test('UserInfo with Unicode', () {
-      const inputIri = 'http://úser@example.com/'; // u acute
-      const expectedUriString = 'http://%C3%BAser@example.com/'; // UTF-8: C3 BA
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
+    test('replace handles pathSegments and queryParameters', () {
+      final base = Iri.parse('http://example.org/');
+      final replaced = base.replace(
+        pathSegments: ['a', 'b'],
+        queryParameters: {'q': 'résumé'},
+      );
+      expect(replaced.toString(), 'http://example.org/a/b?q=résumé');
+    });
+  });
+
+  group('RFC Specicifc complaince', () {
+    group('RFC 3987 Section 3.1: Mapping IRIs to URIs', () {
+      test('Idempotency: Applying mapping twice changes nothing', () {
+        final iri = Iri.parse('http://résumé.example.org/path');
+        final uri1 = iri.toUri();
+        final iri2 = Iri.fromUri(uri1);
+        final uri2 = iri2.toUri();
+        expect(uri1, uri2);
+      });
+
+      test('Percent-encoding uses uppercase letters for hex (Step 2.2)', () {
+        final iri = Iri.parse('http://example.org/é');
+        // é is U+00E9, UTF-8: C3 A9
+        expect(iri.toUriString(), contains('%C3%A9'));
+      });
+
+      test('Characters NOT to be converted: #, %, [, ]', () {
+        // These are reserved or have special meaning, should not be converted in Step 2
+        final iri = Iri.parse('http://example.org/path%20#frag');
+        expect(iri.toUriString(), 'http://example.org/path%20#frag');
+      });
+
+      test('Non-BMP characters (Step 2 Example)', () {
+        // Old Italic letters: U+10300 U+10301 U+10302
+        // Correct URI: %F0%90%8C%80%F0%90%8C%81%F0%90%8C%82
+        final iri = Iri.parse('http://example.com/\u{10300}\u{10301}\u{10302}');
+        expect(
+          iri.toUriString(),
+          contains('%F0%90%8C%80%F0%90%8C%81%F0%90%8C%82'),
+        );
+      });
     });
 
-    test('UserInfo with sub-delims and colon', () {
-      const inputIri = r'http://u!$&()*+,;=:p@example.com/';
-      const expectedUriString =
-          r'http://u!$&()*+,;=:p@example.com/'; // These are allowed raw
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
+    group('RFC 3987 Section 3.2: Converting URIs to IRIs', () {
+      test('Valid UTF-8 is decoded (Example 1)', () {
+        final uri = Uri.parse('http://www.example.org/D%C3%BCrst');
+        final iri = Iri.fromUri(uri);
+        expect(iri.path, '/D\u00FCrst');
+        expect(iri.toString(), 'http://www.example.org/D\u00FCrst');
+      });
+
+      test(
+        'Invalid UTF-8 sequence remains percent-encoded (Example 2)',
+        () {
+          // %FC is not a valid UTF-8 start byte for a single character or valid sequence here
+          final uri = Uri.parse('http://www.example.org/D%FCrst');
+          final iri = Iri.fromUri(uri);
+          // We expect it to NOT decode if it's invalid UTF-8
+          // Note: Dart's Uri.decodeComponent might throw or return something else.
+          // If it throws, Iri should handle it.
+          expect(iri.path, contains('%FC'));
+        },
+        skip: 'Not currently implemented',
+      );
+
+      test(
+        'Bidi control characters remain percent-encoded (Example 3)',
+        () {
+          // U+202E RIGHT-TO-LEFT OVERRIDE is %E2%80%AE
+          final uri = Uri.parse('http://example.org/%E2%80%AE');
+          final iri = Iri.fromUri(uri);
+          // Currently fails: it decodes it.
+          expect(iri.path, contains('%E2%80%AE'));
+        },
+        skip: 'Not currently implemented',
+      );
     });
 
-    // test('UserInfo with slash (needs encoding)', () {
-    //   const inputIri =
-    //       'http://user/name@example.com/'; // / not allowed raw in userinfo
-    //   const expectedUriString = 'http://user%2Fname@example.com/'; // %2F = /
-    //   final iri = IRI(inputIri);
-    //   final uri = iri.toUri();
-    //   expect(uri.toString(), equals(expectedUriString));
-    //   expect(iri.toString(), equals(inputIri));
-    // });
+    group('RFC 3987 Section 5: Normalization and Comparison', () {
+      test('Percent-encoding normalization (Section 5.3.2.3)', () {
+        // Unreserved characters should be decoded for comparison
+        // ~ (U+007E) is unreserved.
+        final iri1 = Iri.parse('http://example.org/%7Euser');
+        final iri2 = Iri.parse('http://example.org/~user');
+        expect(iri1, iri2);
+      });
 
-    // --- Path Normalization (Dot Segments) ---
-    test('Path Normalization: Simple dot segment', () {
-      const inputIri = 'http://example.com/a/./b';
-      const expectedUriString = 'http://example.com/a/b';
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+      test('Case normalization of hex digits', () {
+        final iri1 = Iri.parse('http://example.org/%c3%a9');
+        final iri2 = Iri.parse('http://example.org/%C3%A9');
+        expect(iri1, iri2);
+      });
+
+      test('Path segment normalization (Section 5.3.2.4)', () {
+        final iri1 = Iri.parse('http://example.org/a/./b/../c');
+        final iri2 = Iri.parse('http://example.org/a/c');
+        expect(iri1, iri2);
+      });
+
+      test('Scheme-based normalization: Default port (Section 5.3.3)', () {
+        final iri1 = Iri.parse('http://example.com:80/');
+        final iri2 = Iri.parse('http://example.com/');
+        expect(iri1, iri2);
+      });
+
+      test('Host equivalence: Unicode vs Punycode (Section 5.3.3)', () {
+        final iri1 = Iri.parse('http://résumé.example.org/');
+        final iri2 = Iri.parse('http://xn--rsum-bpad.example.org/');
+        expect(iri1, iri2);
+      });
+
+      test('Host equivalence: Case mapping in IDN', () {
+        final iri1 = Iri.parse('http://RÉSUMÉ.example.org/');
+        final iri2 = Iri.parse('http://résumé.example.org/');
+        expect(iri1, iri2);
+      });
     });
 
-    test('Path Normalization: Simple dot-dot segment', () {
-      const inputIri = 'http://example.com/a/b/../c';
-      const expectedUriString = 'http://example.com/a/c';
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+    group('RFC 3987 Section 6.1: Character limitations', () {
+      test('Private use characters allowed in query', () {
+        // U+E000 is a private use character
+        final iri = Iri.parse('http://example.org/path?q=\uE000');
+        expect(iri.query, 'q=\uE000');
+      });
+
+      test(
+        'Prohibited US-ASCII characters should be percent-encoded in URI',
+        () {
+          // < > " { } | \ ^ `
+          final iri = Iri.parse(r'http://example.org/path?q=<>&"{}|\^`');
+          final uriStr = iri.toUriString();
+          expect(uriStr, contains('%3C')); // <
+          expect(uriStr, contains('%3E')); // >
+          expect(uriStr, contains('%22')); // "
+          expect(uriStr, contains('%7B')); // {
+          expect(uriStr, contains('%7D')); // }
+          expect(uriStr, contains('%7C')); // |
+          expect(uriStr, contains('%5C')); // \
+          expect(uriStr, contains('%5E')); // ^
+          expect(uriStr, contains('%60')); // `
+        },
+      );
     });
 
-    test('Path Normalization: Leading dot-dot', () {
-      const inputIri = 'http://example.com/../a';
-      const expectedUriString =
-          'http://example.com/a'; // Leading ../ is removed relative to root
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
+    group('Relative IRI References (Section 6.5)', () {
+      test('Relative resolution handles Unicode', () {
+        final base = Iri.parse('http://résumé.example.org/a/b');
+        // Resolve against c/d
+        // Note: Iri doesn't have resolve() yet, but we can check if it should.
+        // For now, let's see if we can use Uri.resolve on toUri().
+        final resolvedUri = base.toUri().resolve('c/d');
+        final resolvedIri = Iri.fromUri(resolvedUri);
+        expect(resolvedIri.toString(), 'http://résumé.example.org/a/c/d');
+      });
     });
-
-    test('Path Normalization: Mid dot-dot climbs too high', () {
-      const inputIri = 'http://example.com/a/../../b';
-      const expectedUriString =
-          'http://example.com/b'; // Climbs above root, effectively /b
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
-    });
-
-    test('Path Normalization: Trailing dots', () {
-      const inputIri = 'http://example.com/a/b/.';
-      const expectedUriString =
-          'http://example.com/a/b/'; // Trailing /. becomes /
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
-    });
-
-    test('Path Normalization: Trailing dot-dots', () {
-      const inputIri = 'http://example.com/a/b/c/..';
-      const expectedUriString =
-          'http://example.com/a/b/'; // Trailing /.. removes last segment + becomes /
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
-    });
-
-    test('Path Normalization: Complex mix', () {
-      const inputIri = 'http://example.com/a/./b/../c/d/../../e';
-      const expectedUriString = 'http://example.com/a/e'; // Final result
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
-    });
-
-    // --- Relative References ---
-    test('Relative Path', () {
-      const inputIri = 'pȧth/ñ?q=1'; // a-dot, n-tilde
-      const expectedUriString = 'p%C8%A7th/%C3%B1?q=1';
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
-    });
-
-    test('Relative Absolute Path', () {
-      const inputIri = '/pȧth?q=1';
-      const expectedUriString = '/p%C8%A7th?q=1';
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
-    });
-
-    test('Relative Network Path', () {
-      const inputIri = '//例子.com/pȧth?q=1';
-      const expectedUriString = '//xn--fsqu00a.com/p%C8%A7th?q=1';
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
-    });
-
-    test('Relative with dot segments', () {
-      const inputIri = 'a/./b/../c/d';
-      const expectedUriString =
-          'a/c/d'; // Normalization applies to relative paths too
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(expectedUriString));
-    });
-
-    test('Relative empty path', () {
-      const inputIri = '';
-      const expectedUriString = '';
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
-    });
-
-    test('Relative fragment only', () {
-      const inputIri = '#frågment';
-      const expectedUriString = '#fr%C3%A5gment';
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
-    });
-
-    test('Relative query only', () {
-      const inputIri = '?k€y=val';
-      const expectedUriString = '?k%E2%82%ACy=val';
-      final iri = IRI(inputIri);
-      final uri = iri.toUri();
-      expect(uri.toString(), equals(expectedUriString));
-      expect(iri.toString(), equals(inputIri));
-    });
-
-    // --- Invalid IRI Handling (expect FormatException) ---
-    test('Invalid IRI: Space in path', () {
-      expect(() => IRI('http://example.com/a path'), throwsFormatException);
-    });
-
-    test('Invalid IRI: Space in host', () {
-      expect(() => IRI('http://my host.com/'), throwsFormatException);
-    });
-
-    test('Invalid IRI: Bad IPv6 literal', () {
-      expect(() => IRI('http://[:::1/'), throwsFormatException);
-    });
-
-    test('Invalid IRI: Starts with colon', () {
-      expect(() => IRI('://example.com/'), throwsFormatException);
-    });
-
-    test('Invalid IRI: Empty host with authority marker', () {
-      expect(() => IRI('http://'), throwsFormatException);
-    });
-
-    test('Invalid IRI: Invalid scheme format', () {
-      expect(() => IRI('1http://example.com'), throwsFormatException);
-    });
-
-    test('Invalid IRI: Path with invalid percent encoding (non-hex)', () {
-      expect(() => IRI('http://example.com/path%ax'), throwsFormatException);
-    });
-
-    test('Invalid IRI: Invalid characters in path (e.g., control chars)', () {
-      // Note: _isValid check might catch this first
-      expect(() => IRI('http://example.com/\x01'), throwsFormatException);
-    });
-
-    test('Invalid IRI: Path with lone percent sign', () {
-      expect(() => IRI('http://example.com/path%25'), throwsFormatException);
-    });
-
-    test('Invalid IRI: Path with invalid percent encoding', () {
-      expect(() => IRI('http://example.com/path%a'), throwsFormatException);
-    });
-
-    test('Invalid IRI: Path with reserved char needing encoding', () {
-      // Assume '[' is not allowed raw in path by RFC 3986 (it's a gen-delim)
-      expect(() => IRI('http://example.com/path[abc]'), throwsFormatException);
-    });
-  }); // End group: IRI to URI Conversion Tests
+  });
 }
