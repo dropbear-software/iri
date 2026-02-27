@@ -68,7 +68,7 @@ class Iri {
 
   /// Creates a new file IRI from its components.
   Iri.file(String path, {bool? windows})
-      : _uri = Uri.file(unorm.nfkc(path), windows: windows);
+    : _uri = Uri.file(unorm.nfkc(path), windows: windows);
 
   /// Creates a new IRI from an existing [Uri].
   Iri.fromUri(this._uri);
