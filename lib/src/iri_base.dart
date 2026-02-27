@@ -242,7 +242,7 @@ class Iri {
   }
 
   /// Returns the percent-encoded URI string representation of this IRI.
-  String toUriString() => _uri.toString();
+  String toUriString() => toUri().toString();
 
   @override
   bool operator ==(Object other) =>

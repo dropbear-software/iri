@@ -36,6 +36,11 @@ void main() {
       final iri = Iri.parse('http://example.org/résumé');
       expect(iri.toUriString(), 'http://example.org/r%C3%A9sum%C3%A9');
     });
+
+    test('toUriString handles punycode encoding of the domain', () {
+      final iri = Iri.parse('http://résumé.test');
+      expect(iri.toUriString(), 'http://xn--rsum-bpad.test');
+    });
   });
 
   group('Iri mailto: special handling', () {
