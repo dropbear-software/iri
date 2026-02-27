@@ -30,97 +30,71 @@
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
   <div id="dartdoc-main-content" class="main-content">
       
 <section class="desc markdown">
-  <p><a href="https://pub.dev/packages/iri"><img src="https://img.shields.io/pub/v/iri.svg" alt="pub package"></a>
-<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
-<a href="https://studio.firebase.google.com/import?url=https%3A%2F%2Fgithub.com%2Fdropbear-software%25iri"><img src="https://cdn.firebasestudio.dev/btn/open_light_20.svg" alt="Open in Firebase Studio"></a></p>
-<h1 id="iri---internationalized-resource-identifiers">IRI - Internationalized Resource Identifiers</h1>
-<p>A Dart library for parsing, validating, manipulating, and converting
-Internationalized Resource Identifiers (IRIs) based on <a href="https://www.rfc-editor.org/rfc/rfc3987">RFC 3987</a>.</p>
-<h2 id="overview">Overview</h2>
-<p>Internationalized Resource Identifiers (IRIs) extend the syntax of Uniform
-Resource Identifiers (URIs) to support a wider range of characters from the
-Universal Character Set (Unicode/ISO 10646). This is essential for representing
-resource identifiers in languages that use characters outside the US-ASCII range.</p>
-<p>This package provides the <code>IRI</code> class to work with IRIs in Dart applications.
-It handles the necessary conversions between IRIs and standard URIs, including:</p>
-<ul>
-<li><strong>Punycode encoding/decoding</strong> for internationalized domain names (IDNs) within the host component.</li>
-<li><strong>Percent encoding/decoding</strong> for other non-ASCII characters in various IRI components, using UTF-8 as required by the standard.</li>
-</ul>
+  <h1 id="iri-internationalized-resource-identifiers">IRI (Internationalized Resource Identifiers)</h1>
+<p>A pure Dart implementation of Internationalized Resource Identifiers (IRI) as defined in <a href="https://datatracker.ietf.org/doc/html/rfc3987">RFC 3987</a>.</p>
+<p>This package provides an <code>Iri</code> class that acts as a Unicode-aware wrapper around Dart's native <code>Uri</code> class. It handles the mapping between IRIs and URIs, including automatic Punycode conversion for hostnames and UTF-8 percent-encoding for other components.</p>
 <h2 id="features">Features</h2>
 <ul>
-<li><strong>Parse IRI strings:</strong> Create <code>IRI</code> objects from strings.</li>
-<li><strong>Validate IRIs:</strong> Check if strings conform to RFC 3987 syntax.</li>
-<li><strong>Access Components:</strong> Easily get decoded IRI components like <code>scheme</code>, <code>host</code>, <code>path</code>, <code>query</code>, <code>fragment</code>, <code>userInfo</code>, <code>port</code>.</li>
-<li><strong>IRI-to-URI Conversion:</strong> Convert an <code>IRI</code> object to a standard Dart <code>Uri</code> object, applying Punycode and percent-encoding according to RFC 3987 rules.</li>
-<li><strong>URI-to-IRI Conversion:</strong> Convert a standard <code>Uri</code> back into an <code>IRI</code>, decoding percent-encoded sequences where appropriate.</li>
-<li><strong>Normalization:</strong> Applies syntax-based normalization including:
-<ul>
-<li>Case normalization (scheme, host).</li>
-<li>Percent-encoding normalization (uses uppercase hex, decodes unreserved characters where possible in IRI representation).</li>
-<li>Path segment normalization (removes <code>.</code> and <code>..</code> segments).</li>
+<li><strong>Standard Compliant</strong>: Implements the IRI-to-URI mapping and URI-to-IRI conversion rules from RFC 3987.</li>
+<li><strong>Punycode Support</strong>: Automatically converts non-ASCII hostnames to Punycode.</li>
+<li><strong>Unicode-Aware</strong>: Access components (path, query, fragment, etc.) in their original Unicode form.</li>
+<li><strong>Normalization</strong>: Automatically applies <strong>NFKC</strong> (Normalization Form KC) to all inputs as recommended by RFC 3987 to prevent comparison false-negatives.</li>
+<li><strong>IDNA Separators</strong>: Supports international domain separators (<code>。</code>, <code>．</code>, <code>｡</code>) during parsing and conversion.</li>
+<li><strong>Mailto Support</strong>: Special handling for <code>mailto:</code> IRIs, ensuring email domain parts are correctly Punycode-encoded.</li>
+<li><strong>Familiar API</strong>: Mirrors the Dart <code>Uri</code> class API, including <code>resolve</code>, <code>resolveIri</code>, and <code>replace</code>.</li>
+<li><strong>Immutable</strong>: The <code>Iri</code> class is immutable and supports equality checks.</li>
 </ul>
-</li>
-<li><strong>Comparison:</strong> Compare <code>IRI</code> objects based on their code point sequence (simple string comparison).</li>
-</ul>
-<h2 id="getting-started">Getting Started</h2>
-<p>Add the package to your <code>pubspec.yaml</code>:</p>
+<h2 id="rfc-3987-compliance--limitations">RFC 3987 Compliance &amp; Limitations</h2>
+<p>While this package aims for high compatibility with RFC 3987, there are known areas where the current implementation deviates from the strict specification:</p>
+<ol>
+<li><strong>Robust URI-to-IRI Decoding (RFC 3987 Section 3.2)</strong>: When converting from a <code>Uri</code> to an <code>Iri</code>, the package currently uses standard UTF-8 decoding. If a percent-encoded sequence is invalid UTF-8 (e.g., <code>%FC</code>), the implementation may throw a <code>FormatException</code> instead of preserving the percent-encoding as required by the RFC.</li>
+<li><strong>Prohibited Characters (RFC 3987 Section 4.1)</strong>: Certain Unicode characters (like bidirectional control characters <code>U+202E</code>) are prohibited from appearing directly in an IRI. Currently, these characters are decoded if present in a URI, whereas they should remain percent-encoded.</li>
+<li><strong>Bidi Validation (RFC 3987 Section 4.2)</strong>: The package does not currently perform structural validation of bidirectional IRIs (e.g., ensuring RTL components don't mix directions incorrectly).</li>
+</ol>
+<p>These areas <strong>may</strong> be a part of future updates. For most common use cases involving standard Unicode text in paths and hosts, the package provides a robust experience.</p>
+<h2 id="getting-started">Getting started</h2>
+<p>Add <code>iri</code> to your <code>pubspec.yaml</code> dependencies:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  iri: ^0.1.0
-</code></pre>
-<p>Then, import the library in your Dart code:</p>
-<pre class="language-dart"><code class="language-dart">import 'package:iri/iri.dart';
+  iri: ^0.2.0
 </code></pre>
 <h2 id="usage">Usage</h2>
-<p>Here's a basic example demonstrating how to create an <code>IRI</code> and convert it to a <code>Uri</code>:</p>
+<h3 id="basic-parsing-and-conversion">Basic Parsing and Conversion</h3>
 <pre class="language-dart"><code class="language-dart">import 'package:iri/iri.dart';
 
 void main() {
-  // 1. Create an IRI from a string containing non-ASCII characters.
-  //    例子 means "example" in Chinese.
-  //    The path contains 'ȧ' (U+0227 LATIN SMALL LETTER A WITH DOT ABOVE).
-  final iri = IRI('https://例子.com/pȧth?q=1');
+  // Parse an IRI with Unicode characters
+  final iri = Iri.parse('http://résumé.example.org/résumé');
 
-  // 2. Print the original IRI string representation.
-  print('Original IRI: $iri');
-  // Output: Original IRI: https://例子.com/pȧth?q=1
+  print('IRI host: ${iri.host}'); // résumé.example.org
+  print('IRI path: ${iri.path}'); // /résumé
 
-  // 3. Convert the IRI to its standard URI representation.
-  //    - The host (例子.com) is converted to Punycode (xn--fsqu00a.com).
-  //    - The non-ASCII path character 'ȧ' (UTF-8 bytes C8 A7) is percent-encoded (%C8%A7).
+  // Convert to a standard URI for network operations
   final uri = iri.toUri();
-  print('Converted URI: $uri');
-  // Output: Converted URI: https://xn--fsqu00a.com/p%C8%A7th?q=1
-
-  // 4. Access components (values are decoded for IRI representation).
-  print('Scheme: ${iri.scheme}');       // Output: Scheme: https
-  print('Host: ${iri.host}');           // Output: Host: 例子.com
-  print('Path: ${iri.path}');           // Output: Path: /pȧth
-  print('Query: ${iri.query}');         // Output: Query: q=1
-
-  // 5. Compare IRIs
-  final iri2 = IRI('https://例子.com/pȧth?q=1');
-  print('IRIs equal: ${iri == iri2}'); // Output: IRIs equal: true
-
-  final iri3 = IRI('https://example.com/');
-  print('IRIs equal: ${iri == iri3}'); // Output: IRIs equal: false
+  print('URI host: ${uri.host}'); // xn--rsum-bpad.example.org
+  print('URI string: $uri');      // http://xn--rsum-bpad.example.org/r%C3%A9sum%C3%A9
 }
+</code></pre>
+<h3 id="creating-iris-from-components">Creating IRIs from Components</h3>
+<pre class="language-dart"><code class="language-dart">final iri = Iri(
+  scheme: 'https',
+  host: 'münchen.test',
+  path: '/city',
+);
+
+print(iri.toUri()); // https://xn--mnchen-3ya.test/city
 </code></pre>
 </section>
 
@@ -129,11 +103,11 @@ void main() {
           <h2>Libraries</h2>
         <dl>
           <dt id="iri">
-  <span class="name"><a href="iri">iri</a></span> 
+  <span class="name"><a href="iri/">iri</a></span> 
 
 </dt>
 <dd>Provides support for Internationalized Resource Identifiers (IRIs)
-based on RFC 3987.
+based on RFC 3987 (<a href="https://www.rfc-editor.org/rfc/rfc3987">https://www.rfc-editor.org/rfc/rfc3987</a>).
 </dd>
 
         </dl>
@@ -153,7 +127,7 @@ based on RFC 3987.
     <h5 class="hidden-xs"><span class="package-name">iri</span> <span class="package-kind">package</span></h5>
     <ol>
       <li class="section-title">Libraries</li>
-      <li><a href="iri">iri</a></li>
+      <li><a href="iri/">iri</a></li>
 </ol>
 
   </div>
@@ -163,7 +137,7 @@ based on RFC 3987.
 <footer>
   <span class="no-break">
     iri
-      0.1.1
+      0.2.0
   </span>
   
 </footer>

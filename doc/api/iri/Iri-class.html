@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Iri class from the iri library, for the Dart programming language.">
+  <title>Iri class - iri library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">iri</a></li>
+    <li><a href="../iri/">iri.dart</a></li>
+    <li class="self-crumb">Iri class</li>
+  </ol>
+  <div class="self-name">Iri</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="iri&#47;iri-library-sidebar.html"
+    data-below-sidebar="iri&#47;Iri-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">Iri</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>An Internationalized Resource Identifier (IRI).</p>
+<p>An IRI is a sequence of characters from the Universal Character Set (Unicode).
+It provides a complement to the Uniform Resource Identifier (URI).</p>
+<p>This implementation is a wrapper around the native <a href="https://api.dart.dev/stable/3.9.4/dart-core/Uri-class.html">Uri</a> class, providing
+Seamless mapping to URIs as defined in RFC 3987.</p>
+<p>All strings passed to constructors or parsing methods are automatically
+normalized to Normalization Form KC (NFKC).</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+
+        
+        
+
+
+        
+        
+  <dt>Annotations</dt>
+  <dd>
+    <ul class="annotation-list clazz-relationships">
+        <li>@<a href="https://pub.dev/documentation/meta/1.18.1/meta/immutable-constant.html">immutable</a></li>
+    </ul>
+  </dd>
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="Iri.new" class="callable">
+          <span class="name"><a href="../iri/Iri/Iri.html">Iri.new</a></span><span class="signature">({<span class="parameter" id="-param-scheme"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">scheme</span>, </span><span class="parameter" id="-param-userInfo"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">userInfo</span>, </span><span class="parameter" id="-param-host"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">host</span>, </span><span class="parameter" id="-param-port"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">port</span>, </span><span class="parameter" id="-param-path"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">path</span>, </span><span class="parameter" id="-param-pathSegments"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">pathSegments</span>, </span><span class="parameter" id="-param-query"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">query</span>, </span><span class="parameter" id="-param-queryParameters"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">queryParameters</span>, </span><span class="parameter" id="-param-fragment"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">fragment</span></span>})</span>
+        </dt>
+        <dd>
+          Creates a new IRI from its components.
+        </dd>
+        <dt id="Iri.file" class="callable">
+          <span class="name"><a href="../iri/Iri/Iri.file.html">Iri.file</a></span><span class="signature">(<span class="parameter" id="file-param-path"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">path</span>, {</span><span class="parameter" id="file-param-windows"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">windows</span></span>})</span>
+        </dt>
+        <dd>
+          Creates a new file IRI from its components.
+        </dd>
+        <dt id="Iri.fromUri" class="callable">
+          <span class="name"><a href="../iri/Iri/Iri.fromUri.html">Iri.fromUri</a></span><span class="signature">(<span class="parameter" id="fromUri-param-_uri"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/Uri-class.html">Uri</a></span> <span class="parameter-name">_uri</span></span>)</span>
+        </dt>
+        <dd>
+          Creates a new IRI from an existing <a href="https://api.dart.dev/stable/3.9.4/dart-core/Uri-class.html">Uri</a>.
+        </dd>
+        <dt id="Iri.http" class="callable">
+          <span class="name"><a href="../iri/Iri/Iri.http.html">Iri.http</a></span><span class="signature">(<span class="parameter" id="http-param-host"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, [</span><span class="parameter" id="http-param-path"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">path</span> = <span class="default-value">&#39;&#39;</span>, </span><span class="parameter" id="http-param-queryParameters"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">queryParameters</span></span>])</span>
+        </dt>
+        <dd>
+          Creates a new http IRI from its components.
+        </dd>
+        <dt id="Iri.https" class="callable">
+          <span class="name"><a href="../iri/Iri/Iri.https.html">Iri.https</a></span><span class="signature">(<span class="parameter" id="https-param-host"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, [</span><span class="parameter" id="https-param-path"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">path</span> = <span class="default-value">&#39;&#39;</span>, </span><span class="parameter" id="https-param-queryParameters"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">queryParameters</span></span>])</span>
+        </dt>
+        <dd>
+          Creates a new https IRI from its components.
+        </dd>
+        <dt id="Iri.parse" class="callable">
+          <span class="name"><a href="../iri/Iri/Iri.parse.html">Iri.parse</a></span><span class="signature">(<span class="parameter" id="parse-param-input"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">input</span></span>)</span>
+        </dt>
+        <dd>
+          Parses a string into an <a href="../iri/Iri-class.html">Iri</a>.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="fragment" class="property">
+  <span class="name"><a href="../iri/Iri/fragment.html">fragment</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The Unicode-aware fragment of this IRI.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property">
+  <span class="name"><a href="../iri/Iri/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.9.4/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="host" class="property">
+  <span class="name"><a href="../iri/Iri/host.html">host</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The Unicode-aware host of this IRI.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="path" class="property">
+  <span class="name"><a href="../iri/Iri/path.html">path</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The Unicode-aware path of this IRI.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="pathSegments" class="property">
+  <span class="name"><a href="../iri/Iri/pathSegments.html">pathSegments</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.9.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The URI path segments as an iterable.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="port" class="property">
+  <span class="name"><a href="../iri/Iri/port.html">port</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.9.4/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The port of this IRI.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="query" class="property">
+  <span class="name"><a href="../iri/Iri/query.html">query</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The Unicode-aware query of this IRI.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="queryParameters" class="property">
+  <span class="name"><a href="../iri/Iri/queryParameters.html">queryParameters</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.9.4/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The URI query parameters as a map.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.9.4/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.9.4/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="scheme" class="property">
+  <span class="name"><a href="../iri/Iri/scheme.html">scheme</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The scheme of this IRI.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="userInfo" class="property">
+  <span class="name"><a href="../iri/Iri/userInfo.html">userInfo</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The Unicode-aware user information of this IRI.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.9.4/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="replace" class="callable">
+  <span class="name"><a href="../iri/Iri/replace.html">replace</a></span><span class="signature">(<wbr>{<span class="parameter" id="replace-param-scheme"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">scheme</span>, </span><span class="parameter" id="replace-param-userInfo"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">userInfo</span>, </span><span class="parameter" id="replace-param-host"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">host</span>, </span><span class="parameter" id="replace-param-port"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">port</span>, </span><span class="parameter" id="replace-param-path"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">path</span>, </span><span class="parameter" id="replace-param-pathSegments"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">pathSegments</span>, </span><span class="parameter" id="replace-param-query"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">query</span>, </span><span class="parameter" id="replace-param-queryParameters"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">queryParameters</span>, </span><span class="parameter" id="replace-param-fragment"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">fragment</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../iri/Iri-class.html">Iri</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a new IRI by replacing some of the components of this IRI.
+  
+
+</dd>
+
+        <dt id="resolve" class="callable">
+  <span class="name"><a href="../iri/Iri/resolve.html">resolve</a></span><span class="signature">(<wbr><span class="parameter" id="resolve-param-reference"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">reference</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../iri/Iri-class.html">Iri</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resolves <code>reference</code> against this IRI.
+  
+
+</dd>
+
+        <dt id="resolveIri" class="callable">
+  <span class="name"><a href="../iri/Iri/resolveIri.html">resolveIri</a></span><span class="signature">(<wbr><span class="parameter" id="resolveIri-param-reference"><span class="type-annotation"><a href="../iri/Iri-class.html">Iri</a></span> <span class="parameter-name">reference</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../iri/Iri-class.html">Iri</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resolves <code>reference</code> against this IRI.
+  
+
+</dd>
+
+        <dt id="toString" class="callable">
+  <span class="name"><a href="../iri/Iri/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the Unicode representation of this IRI.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="toUri" class="callable">
+  <span class="name"><a href="../iri/Iri/toUri.html">toUri</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.9.4/dart-core/Uri-class.html">Uri</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Converts this IRI to a standard <a href="https://api.dart.dev/stable/3.9.4/dart-core/Uri-class.html">Uri</a>.
+  
+
+</dd>
+
+        <dt id="toUriString" class="callable">
+  <span class="name"><a href="../iri/Iri/toUriString.html">toUriString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the percent-encoded URI string representation of this IRI.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable">
+  <span class="name"><a href="../iri/Iri/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.9.4/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  The equality operator.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="tryParse" class="callable">
+  <span class="name"><a href="../iri/Iri/tryParse.html">tryParse</a></span><span class="signature">(<wbr><span class="parameter" id="tryParse-param-input"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">input</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../iri/Iri-class.html">Iri</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Parses a string into an <a href="../iri/Iri-class.html">Iri</a>, or returns null if it fails.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">iri</a></li>
+    <li><a href="../iri/">iri</a></li>
+    <li class="self-crumb">Iri class</li>
+</ol>
+
+    <h5>iri library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    iri
+      0.2.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
