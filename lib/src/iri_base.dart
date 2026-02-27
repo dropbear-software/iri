@@ -39,7 +39,15 @@ class Iri {
          pathSegments: pathSegments?.map(unorm.nfkc),
          query: query != null ? unorm.nfkc(query) : null,
          queryParameters: queryParameters?.map((k, v) {
-           return MapEntry(unorm.nfkc(k), v is String ? unorm.nfkc(v) : v);
+           final Object? normalizedValue;
+           if (v is String) {
+             normalizedValue = unorm.nfkc(v);
+           } else if (v is Iterable<String>) {
+             normalizedValue = v.map(unorm.nfkc);
+           } else {
+             normalizedValue = v;
+           }
+           return MapEntry(unorm.nfkc(k), normalizedValue);
          }),
          fragment: fragment != null ? unorm.nfkc(fragment) : null,
        );
@@ -53,7 +61,15 @@ class Iri {
          unorm.nfkc(host),
          unorm.nfkc(path),
          queryParameters?.map((k, v) {
-           return MapEntry(unorm.nfkc(k), v is String ? unorm.nfkc(v) : v);
+           final Object? normalizedValue;
+           if (v is String) {
+             normalizedValue = unorm.nfkc(v);
+           } else if (v is Iterable<String>) {
+             normalizedValue = v.map(unorm.nfkc);
+           } else {
+             normalizedValue = v;
+           }
+           return MapEntry(unorm.nfkc(k), normalizedValue);
          }),
        );
 
@@ -66,7 +82,15 @@ class Iri {
          unorm.nfkc(host),
          unorm.nfkc(path),
          queryParameters?.map((k, v) {
-           return MapEntry(unorm.nfkc(k), v is String ? unorm.nfkc(v) : v);
+           final Object? normalizedValue;
+           if (v is String) {
+             normalizedValue = unorm.nfkc(v);
+           } else if (v is Iterable<String>) {
+             normalizedValue = v.map(unorm.nfkc);
+           } else {
+             normalizedValue = v;
+           }
+           return MapEntry(unorm.nfkc(k), normalizedValue);
          }),
        );
 
@@ -178,7 +202,15 @@ class Iri {
         pathSegments: pathSegments?.map(unorm.nfkc),
         query: query != null ? unorm.nfkc(query) : null,
         queryParameters: queryParameters?.map((k, v) {
-          return MapEntry(unorm.nfkc(k), v is String ? unorm.nfkc(v) : v);
+          final Object? normalizedValue;
+          if (v is String) {
+            normalizedValue = unorm.nfkc(v);
+          } else if (v is Iterable<String>) {
+            normalizedValue = v.map(unorm.nfkc);
+          } else {
+            normalizedValue = v;
+          }
+          return MapEntry(unorm.nfkc(k), normalizedValue);
         }),
         fragment: fragment != null ? unorm.nfkc(fragment) : null,
       ),

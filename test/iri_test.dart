@@ -259,6 +259,19 @@ void main() {
       );
       expect(replaced.toString(), 'http://example.org/a/b?q=résumé');
     });
+
+    test(
+      'replace handles queryParameters with Iterable<String> and intl characters',
+      () {
+        final base = Iri.parse('http://example.org/');
+        final replaced = base.replace(
+          queryParameters: {
+            'q': ['résumé', 'münchen'],
+          },
+        );
+        expect(replaced.toString(), 'http://example.org/?q=résumé&q=münchen');
+      },
+    );
   });
 
   group('RFC Specicifc complaince', () {
