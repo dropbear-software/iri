@@ -71,25 +71,7 @@ according to RFC 3492. Other components are percent-encoded using UTF-8.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Uri toUri() {
-  if (scheme == &#39;mailto&#39;) {
-    final decodedPath = Uri.decodeComponent(_uri.path);
-    try {
-      final punyEmail = emailToAscii(decodedPath, validate: false);
-      return _uri.replace(path: punyEmail);
-    } on FormatException {
-      return _uri;
-    }
-  }
-
-  final decodedHost = Uri.decodeComponent(_uri.host);
-  if (decodedHost.isEmpty) {
-    return _uri;
-  }
-
-  final punyHost = domainToAscii(decodedHost, validate: false);
-  return _uri.replace(host: punyHost);
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">Uri toUri() =&gt; _convertedUri;</code></pre>
 </section>
 
 

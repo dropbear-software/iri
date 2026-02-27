@@ -100,9 +100,7 @@ normalized to NFKC.</p>
       path: path != null ? unorm.nfkc(path) : null,
       pathSegments: pathSegments?.map(unorm.nfkc),
       query: query != null ? unorm.nfkc(query) : null,
-      queryParameters: queryParameters?.map((k, v) {
-        return MapEntry(unorm.nfkc(k), v is String ? unorm.nfkc(v) : v);
-      }),
+      queryParameters: _normalizeQueryParameters(queryParameters),
       fragment: fragment != null ? unorm.nfkc(fragment) : null,
     ),
   );

@@ -75,9 +75,7 @@
 ]) : _uri = Uri.https(
        unorm.nfkc(host),
        unorm.nfkc(path),
-       queryParameters?.map((k, v) {
-         return MapEntry(unorm.nfkc(k), v is String ? unorm.nfkc(v) : v);
-       }),
+       _normalizeQueryParameters(queryParameters),
      );</code></pre>
 </section>
 
