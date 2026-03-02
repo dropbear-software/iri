@@ -238,6 +238,47 @@ void main() {
       ); // Note: host getter might also be lowercase if punycode was involved
       expect(iri.toString(), 'http://a.com/');
     });
+
+    group('ASCII Percent-Encoding Preservation (Regression)', () {
+      test('should preserve %25 (percent sign) in toString()', () {
+        // Impacted by W3C RDF 1.2 test: nt-syntax-uri-04
+        final input = r'scheme:!$%25&';
+        final iri = Iri.parse(input);
+
+        expect(
+          iri.toString(),
+          equals(r'scheme:!$%25&'),
+          reason:
+              'toString() must preserve ASCII percent-encodings to remain a valid URI string',
+        );
+      });
+
+      test(
+        'should preserve encoded spaces and slashes while decoding Unicode',
+        () {
+          // Unicode '例' is %E4%BE%8B
+          final input = 'http://example.org/path%20with%20space/%E4%BE%8B';
+          final iri = Iri.parse(input);
+
+          expect(
+            iri.toString(),
+            equals('http://example.org/path%20with%20space/例'),
+            reason:
+                'Should decode non-ASCII Unicode but preserve ASCII encodings like %20',
+          );
+        },
+      );
+
+      test('component getters should not decode ASCII reserved characters', () {
+        final iri = Iri.parse('http://example.org/path%2Fsub');
+        expect(
+          iri.path,
+          equals('/path%2Fsub'),
+          reason:
+              'Path getter should not decode %2F to a raw slash as it changes the path structure',
+        );
+      });
+    });
   });
 
   group('Iri Resolution', () {
@@ -378,31 +419,23 @@ void main() {
         expect(iri.toString(), 'http://www.example.org/D\u00FCrst');
       });
 
-      test(
-        'Invalid UTF-8 sequence remains percent-encoded (Example 2)',
-        () {
-          // %FC is not a valid UTF-8 start byte for a single character or valid sequence here
-          final uri = Uri.parse('http://www.example.org/D%FCrst');
-          final iri = Iri.fromUri(uri);
-          // We expect it to NOT decode if it's invalid UTF-8
-          // Note: Dart's Uri.decodeComponent might throw or return something else.
-          // If it throws, Iri should handle it.
-          expect(iri.path, contains('%FC'));
-        },
-        skip: 'Not currently implemented',
-      );
+      test('Invalid UTF-8 sequence remains percent-encoded (Example 2)', () {
+        // %FC is not a valid UTF-8 start byte for a single character or valid sequence here
+        final uri = Uri.parse('http://www.example.org/D%FCrst');
+        final iri = Iri.fromUri(uri);
+        // We expect it to NOT decode if it's invalid UTF-8
+        // Note: Dart's Uri.decodeComponent might throw or return something else.
+        // If it throws, Iri should handle it.
+        expect(iri.path, contains('%FC'));
+      });
 
-      test(
-        'Bidi control characters remain percent-encoded (Example 3)',
-        () {
-          // U+202E RIGHT-TO-LEFT OVERRIDE is %E2%80%AE
-          final uri = Uri.parse('http://example.org/%E2%80%AE');
-          final iri = Iri.fromUri(uri);
-          // Currently fails: it decodes it.
-          expect(iri.path, contains('%E2%80%AE'));
-        },
-        skip: 'Not currently implemented',
-      );
+      test('Bidi control characters remain percent-encoded (Example 3)', () {
+        // U+202E RIGHT-TO-LEFT OVERRIDE is %E2%80%AE
+        final uri = Uri.parse('http://example.org/%E2%80%AE');
+        final iri = Iri.fromUri(uri);
+        // Currently fails: it decodes it.
+        expect(iri.path, contains('%E2%80%AE'));
+      });
     });
 
     group('RFC 3987 Section 5: Normalization and Comparison', () {

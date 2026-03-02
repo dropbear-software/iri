@@ -10,6 +10,7 @@ This package provides an `Iri` class that acts as a Unicode-aware wrapper around
 - **Punycode Support**: Automatically converts non-ASCII hostnames to Punycode.
 - **Unicode-Aware**: Access components (path, query, fragment, etc.) in their original Unicode form.
 - **Normalization**: Automatically applies **NFKC** (Normalization Form KC) to all inputs as recommended by RFC 3987 to prevent comparison false-negatives.
+- **Robust Decoding**: Preserves invalid percent-encoded sequences (e.g., `%FC`) and prohibited characters (like bidi controls) instead of throwing or over-decoding.
 - **IDNA Separators**: Supports international domain separators (`。`, `．`, `｡`) during parsing and conversion.
 - **Mailto Support**: Special handling for `mailto:` IRIs, ensuring email domain parts are correctly Punycode-encoded.
 - **Familiar API**: Mirrors the Dart `Uri` class API, including `resolve`, `resolveIri`, and `replace`.
@@ -17,11 +18,10 @@ This package provides an `Iri` class that acts as a Unicode-aware wrapper around
 
 ## RFC 3987 Compliance & Limitations
 
-While this package aims for high compatibility with RFC 3987, there are known areas where the current implementation deviates from the strict specification:
+While this package aims for high compatibility with RFC 3987, there are still some known areas where the current implementation deviates from the strict specification:
 
-1.  **Robust URI-to-IRI Decoding (RFC 3987 Section 3.2)**: When converting from a `Uri` to an `Iri`, the package currently uses standard UTF-8 decoding. If a percent-encoded sequence is invalid UTF-8 (e.g., `%FC`), the implementation may throw a `FormatException` instead of preserving the percent-encoding as required by the RFC.
-2.  **Prohibited Characters (RFC 3987 Section 4.1)**: Certain Unicode characters (like bidirectional control characters `U+202E`) are prohibited from appearing directly in an IRI. Currently, these characters are decoded if present in a URI, whereas they should remain percent-encoded.
-3.  **Bidi Validation (RFC 3987 Section 4.2)**: The package does not currently perform structural validation of bidirectional IRIs (e.g., ensuring RTL components don't mix directions incorrectly).
+1.  **Prohibited Characters (RFC 3987 Section 4.1)**: While bidirectional control characters are now preserved as percent-encodings, other classes of prohibited characters (e.g., certain non-character codepoints) may still be decoded if present in a URI.
+2.  **Bidi Validation (RFC 3987 Section 4.2)**: The package does not currently perform structural validation of bidirectional IRIs (e.g., ensuring RTL components don't mix directions incorrectly).
 
 These areas **may** be a part of future updates. For most common use cases involving standard Unicode text in paths and hosts, the package provides a robust experience.
 
@@ -31,7 +31,7 @@ Add `iri` to your `pubspec.yaml` dependencies:
 
 ```yaml
 dependencies:
-  iri: ^0.2.0
+  iri: ^0.2.1
 ```
 
 ## Usage

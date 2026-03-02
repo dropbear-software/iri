@@ -1,3 +1,9 @@
+## 0.2.1
+- Fix: preserve ASCII percent-encodings in component getters and `toString()` for RFC 3987 compliance.
+- Fix: prevent over-decoding of characters like `%25`, `%20`, and `%2F`.
+- Robust URI-to-IRI decoding: preserve invalid percent-encoded sequences instead of throwing.
+- Implement preservation of prohibited bidirectional control characters (RFC 3987 Section 4.1).
+
 ## 0.2.0
 - Complete package rewrite that is now implemented as a wrapper around the native `Uri` class.
 - Automatic Punycode conversion for hostnames in `toUri()`.
